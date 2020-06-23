@@ -1,6 +1,6 @@
 create table customer(
   email varchar(50),
-  password  varchar(20),
+  password  char(128),
   name varchar(50),
   phone_no varchar(20),
   date_of_birth date,
@@ -27,7 +27,7 @@ create table ticket(
 );
 create table airline_staff(
   user_name varchar(50),
-  password  varchar(20),
+  password  char(128),
   first_name varchar(25),
   last_name varchar(25),
   date_of_birth date,

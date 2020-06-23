@@ -59,7 +59,7 @@ def loginAuthCustomer():
 	else:
 		#returns an error message to the html page
 		error = 'Invalid login or username'
-		return render_template('login.html', error=error)
+		return render_template('customer_login.html', error=error)
 #Authenticates the login
 @app.route('/loginAuthStaff', methods=['GET', 'POST'])
 def loginAuthStaff():
@@ -85,7 +85,7 @@ def loginAuthStaff():
 	else:
 		#returns an error message to the html page
 		error = 'Invalid login or username'
-		return render_template('login.html', error=error)
+		return render_template('staff_login.html', error=error)
 #Authenticates the register for customer
 @app.route('/registerAuthCustomer', methods=['GET', 'POST'])
 def registerAuthCustomer():
@@ -143,7 +143,7 @@ def registerAuthStaff():
     if(data):
 		#If the previous query returns data, then user exists
         error = "This user already exists"
-        return render_template('registerStaff.html', error = error)
+        return render_template('staff_register.html', error = error)
     else:
         ins = 'INSERT INTO airline_staff VALUES(%s, MD5(%s), %s, %s, %s, %s)'
         cursor.execute(ins, (user_name, password, first_name, last_name, date_of_birth, airline))
