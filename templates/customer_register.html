@@ -1,0 +1,37 @@
+<html>
+<head>
+</head>
+<body>
+<form action="/registerAuthCustomer" method="POST">
+	<label for="email">email:</label><br>
+	<input type="text" name = "email" placeholder="email" required/> </br>
+	<label for="password">password:</label><br>
+	<input type="password" name = "password" placeholder="password" required/></br>
+	<label for="name">name:</label><br>
+	<input type="text" name = "name" placeholder="name" required/></br>
+	<label for="phone_no">phone_no:</label><br>
+	<input type="text" name = "phone_no" placeholder="phone_no" required/></br>
+	<label for="date_of_birth">date of birth:</label><br>
+	<input type="date" name = "date_of_birth" placeholder="date_of_birth" required/></br>
+	<label for="passport_no">passport number:</label><br>
+	<input type="text" name = "passport_no" placeholder="passport_no" required/></br>
+	<label for="passport_exp">passport expiration date:</label><br>
+	<input type="date" name = "passport_exp" placeholder="passport_exp" required/></br>
+	<label for="passport_country">passport country:</label><br>
+	<input type="text" name = "passport_country" placeholder="passport_country" required/></br>
+	<label for="state">state:</label><br>
+	<input type="text" name = "state" placeholder="state" required/></br>
+	<label for="city">city:</label><br>
+	<input type="text" name = "city" placeholder="city" required/></br>
+	<label for="street">street:</label><br>
+	<input type="text" name = "street" placeholder="street" required/></br>
+	<label for="building_no">building_no:</label><br>
+	<input type="text" name = "building_no" placeholder="building_no"/></br>
+	<input type="submit" value = Register />
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+</form>
+<a href="/">Go back</a>
+</body>
+</html>

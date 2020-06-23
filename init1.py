@@ -19,10 +19,13 @@ def hello():
 	return render_template('index.html')
 
 #Define route for login
-@app.route('/login')
+@app.route('/customer_login')
 def login():
-	return render_template('login.html')
-
+	return render_template('customer_login.html')
+#Define route for login
+@app.route('/staff_login')
+def login():
+	return render_template('staff_login.html')
 #Define route for customer register
 @app.route('/customer_register')
 def registerCustomer():
