@@ -11,16 +11,12 @@
 	<a href="/staff_login">Login as Staff</a>
 	<a href="/customer_register">Register as Customer</a>
 	<a href="/staff_register">Register as Staff</a>
+	<a href="/public_info">View Public Information</a>
 {% endif %}
 
 {% if message %}
+	<a href="/public_info">View Public Information</a>
 	<a href="/logout">Logout</a>
-	<a href="/remove_account">Remove Account</a>
-	<p class="message">You are logged in {{message}}. You have {{num}} follower(s)</p> </br>
-	<a href="/tweets">View your tweets</a> </br>
-	<a href="/find_people">Find people to follow</a> </br>
-	<a href="/unfollow">Unfollow someone</a> </br>
-	<a href="/view_followed">View people you have followed</a> </br>
 	</br>
 
         <h4>15 most recent tweets from you and your followers </h4> </br>

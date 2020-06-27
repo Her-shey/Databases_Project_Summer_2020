@@ -18,6 +18,48 @@ conn = pymysql.connect(host='localhost',
 def hello():
 	return render_template('index.html')
 
+@app.route('/public_info')
+def publicInfo():
+    return render_template('public_info.html')
+
+@app.route('/flight_search')
+def flightSearch():
+    return render_template('flight_search.html')
+
+@app.route('/flightSearchAction', methods = ['POST'])
+def flightSearchAction():
+    dept_city_airport = request.form['dept_city']
+    dest_city_airport = request.form['dest_city']
+    dept_date = request.form['dept_date']
+    ret_date = request.form['ret_date']
+    cursor = conn.cursor()
+    if ret_date == '':
+        query = '''SELECT flight_no, airline, dep_datetime, arr_datetime,
+        dep_airport, arr_airport, a1.city AS dep_city, a2.city AS arr_city
+        FROM flight
+        INNER JOIN airport a1 on flight.dep_airport = a1.name
+        INNER JOIN airport a2 on flight.arr_airport = a2.name
+        WHERE (dep_airport = %s OR a1.city = %s) AND (arr_airport = %s OR a2.city = %s)
+        AND DATE(dep_datetime) = %s;'''
+        cursor.execute(query, (dept_city_airport, dept_city_airport, dest_city_airport, dest_city_airport, dept_date))
+    else:
+        query = '''SELECT flight_no, airline, dep_datetime, arr_datetime,
+        dep_airport, arr_airport, a1.city AS dep_city, a2.city AS arr_city
+        FROM flight
+        INNER JOIN airport a1 on flight.dep_airport = a1.name
+        INNER JOIN airport a2 on flight.arr_airport = a2.name
+        WHERE ((dep_airport = %s OR a1.city = %s) AND (arr_airport = %s OR a2.city = %s)
+        AND DATE(dep_datetime) = %s) OR ((dep_airport = %s OR a1.city = %s) AND (arr_airport = %s OR a2.city = %s)
+        AND DATE(dep_datetime) = %s);'''
+        cursor.execute(query, (dept_city_airport, dept_city_airport, dest_city_airport, dest_city_airport, dept_date, dest_city_airport, dest_city_airport, dept_city_airport, dept_city_airport, ret_date))
+    data = cursor.fetchall()
+    print(data)
+    cursor.close()
+    return render_template('flight_search.html', message = data)
+
+@app.route('/flight_status')
+def flightStatus():
+    return render_template('flightStatus.html')
 #Define route for login
 @app.route('/customer_login')
 def loginCustomer():
@@ -114,7 +156,7 @@ def registerAuthCustomer():
     if(data):
 		#If the previous query returns data, then user exists
 	    error = "This user already exists"
-	    return render_template('register_customer.html', error = error)
+	    return render_template('customer_register.html', error = error)
     else:
 	    ins = 'INSERT INTO customer VALUES(%s, MD5(%s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
 	    cursor.execute(ins, (email, password, name, phone_no, date_of_birth, passport_no, passport_exp, passport_country, state, city, street, building_no))

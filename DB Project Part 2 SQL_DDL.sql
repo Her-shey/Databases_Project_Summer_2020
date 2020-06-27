@@ -64,7 +64,7 @@ create table flight(
   status varchar(10),
   base_price  numeric(8, 2),
   seat_sold numeric(3, 0),
-  dept_airport  varchar(50),
+  dep_airport  varchar(50),
   arr_airport varchar(50),
   airplane_id char(5),
   primary key (flight_no, airline, dep_datetime),
