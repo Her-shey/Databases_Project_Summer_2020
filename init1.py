@@ -26,6 +26,31 @@ def publicInfo():
 def flightSearch():
     return render_template('flight_search.html')
 
+@app.route('/flightStatusAction', methods = ['POST'])
+def flightStatusAction():
+    dept_city_airport = request.form['dept_city']
+    dept_date = request.form['dept_date']
+    airline = request.form['airline']
+    flight_no = request.form['flight_no']
+    cursor = conn.cursor()
+    query = '''SELECT flight_no, airline, dep_datetime, status
+    FROM flight
+    INNER JOIN airport a1 on flight.dep_airport = a1.name
+    INNER JOIN airport a2 on flight.arr_airport = a2.name
+    WHERE (dep_airport = %s OR a1.city = %s)
+    AND flight_no = %s
+    AND DATE(dep_datetime) = %s
+    AND airline = %s;'''
+    cursor.execute(query, (dept_city_airport, dept_city_airport, flight_no, dept_date, airline))
+    data = cursor.fetchone()
+    cursor.close()
+    if data:
+        return render_template('flight_status.html', message = data)
+    else:
+        error = 'flight not found, please search again'
+        return render_template('flight_status.html', error = error)
+
+
 @app.route('/flightSearchAction', methods = ['POST'])
 def flightSearchAction():
     dept_city_airport = request.form['dept_city']
@@ -53,13 +78,17 @@ def flightSearchAction():
         AND DATE(dep_datetime) = %s);'''
         cursor.execute(query, (dept_city_airport, dept_city_airport, dest_city_airport, dest_city_airport, dept_date, dest_city_airport, dest_city_airport, dept_city_airport, dept_city_airport, ret_date))
     data = cursor.fetchall()
-    print(data)
     cursor.close()
-    return render_template('flight_search.html', message = data)
+    if data:
+        return render_template('flight_search.html', message = data)
+    else:
+        error = 'no flight available, please search again'
+        return render_template('flight_search.html', error = error)
+
 
 @app.route('/flight_status')
 def flightStatus():
-    return render_template('flightStatus.html')
+    return render_template('flight_status.html')
 #Define route for login
 @app.route('/customer_login')
 def loginCustomer():
