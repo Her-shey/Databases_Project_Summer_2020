@@ -1,0 +1,98 @@
+<html>
+<head>
+    <style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+    padding: 8px;
+    }
+    tr:nth-child(even) {
+    background-color: #dddddd;
+    }
+    </style>
+    <h1>Welcome {{name}}</h1>
+</head>
+<body>
+
+
+
+<a href="/customerSearch">Search For Flight</a>
+<a href="/customerSpending">Track My Spending</a>
+
+<form action="/viewMyFlight"method="POST">
+    <button name="view_by" value="airline">Sort By Airline</button>
+    <button name="view_by" value="dep_datetime">Sort By Departure Time</button>
+    <button name="view_by" value="arr_airport">Sort By Destination</button>
+</form>
+
+<div><p1>Future Flight</p1></div>
+<table>
+    <th>Airline</th>
+	<th>Flight</th>
+    <th>At</th>
+    <th>From</th>
+    <th>To</th>
+    <th>Status</th>
+{% for line in future_flight %}
+	<tr>
+		<td>{{line['airline']}}</td>
+		<td>{{line['flight_no']}}</td>
+        <td>{{ line['dep_datetime'] }}</td>
+        <td>{{ line['dep_city']}}  ({{ line['dep_airport']}})</td>
+        <td>{{ line['arr_city']}}  ({{ line['arr_airport']}})</td>
+        <td>{{ line['status'] }}</td>
+	</tr>
+{% endfor %}
+</table>
+<div><p2>   </p2></div>
+<div><p2>   </p2></div>
+<div><p2>Past Flight</p2></div>
+<table>
+    <th>Airline</th>
+    <th>Flight</th>
+    <th>At</th>
+    <th>From</th>
+    <th>To</th>
+    <th>Rate</th>
+    <th>Comment</th>
+    {% for line in past_flight %}
+        <tr>
+            <td>{{line['airline']}}</td>
+		    <td>{{line['flight_no']}}</td>
+            <td>{{ line['dep_datetime'] }}</td>
+            <td>{{ line['dep_city']}}  ({{ line['dep_airport']}})</td>
+            <td>{{ line['arr_city']}}  ({{ line['arr_airport']}})</td>
+            <td>{{ line['rate'] }}</td>
+            <td>{{ line['comment'] }}</td>
+	    </tr>
+    {% endfor %}
+</table>
+<p>Comment And Rate</p>
+<form action="/addComment" method="POST">
+	<label for="cr_airline">Airline:</label><br>
+	<input type="text" name = "cr_airline" placeholder="Airline" required/> </br>
+    <label for="cr_flight_no">Flight Number:</label><br>
+	<input type="text" name = "cr_flight_no" placeholder="Flight Number" required/> </br>
+    <label for="cr_airline">Departure Time:</label><br>
+	<input type="datetime" name = "cr_dep_datetime" placeholder="yyyy-mm-dd hh:mm:ss" required/> </br>
+    <label for="rate">Rate(from 1 to 5):</label><br>
+	<input type="number" name = "rate" placeholder="1-5" size = '2'required/> </br>
+    <label for="comment">Comment:</label><br>
+	<input type="text" name = "comment" placeholder="Type Your Comment" size = '50'height="30"required/> </br>
+	<input type="submit" value = Submit />
+    {% if message %}
+	<p class="message"><strong>Message:</strong> {{message}}</p>
+    {% endif %}
+</form>
+<a href="/customerHome" >Refresh</a>
+<a href="/logoutCustomer" >Logout</a>
+
+</body>
+
+
+</html>

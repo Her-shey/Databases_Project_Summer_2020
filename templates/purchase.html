@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flight Purchase</title>
+</head>
+<body>
+<p>Enter Flight Information</p>
+<form action="/purchaseResult" method="POST">
+	<label for="airline">Airline:</label><br>
+	<input type="text" name = "airline" placeholder="Airline" required/> </br>
+    <label for="flight_no">Flight Number:</label><br>
+	<input type="text" name = "flight_no" placeholder="Flight Number" required/> </br>
+    <label for="dep_datetime">Departure Time:</label><br>
+	<input type="datetime" name = "dep_datetime" placeholder="yyyy-mm-dd hh:mm:ss" required/> </br>
+    <label for="card_no">Card Number:</label><br>
+	<input type="number" name = "card_no" placeholder="card number" required/> </br>
+    <label for="card_type">Card Type:</label><br>
+	<input type="text" name = "card_type" placeholder="credit_card / debit_card" required/> </br>
+    <label for="date">Expiration Date:</label><br>
+    <input type="date" name = "exp_date" placeholder="yyyy-mm-dd" required/> </br>
+    <label for="CVC">Safety Code</label><br>
+	<input type="password" name = "CVC" placeholder="CVC" required/> </br>
+    <label for="name">Name on the Card:</label><br>
+	<input type="text" name = "name" placeholder="Name on the Card" size = '50'height="30"required/> </br>
+    <input type="submit" value = Submit />
+
+    {% if message %}
+	<p class="message"><strong>Message:</strong> {{message}}</p>
+    {% endif %}
+</form>
+
+<a href="/customerSearch">Go back</a>
+<a href="/Logout">Log out</a>
+</body>
+</html>

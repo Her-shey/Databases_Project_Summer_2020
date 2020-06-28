@@ -124,8 +124,8 @@ def loginAuthCustomer():
 	if(data):
 		#creates a session for the the user
 		#session is a built in
-		session['username'] = username
-		return redirect(url_for('home'))
+		session['customer'] = data
+		return redirect(url_for('customerHome'))
 	else:
 		#returns an error message to the html page
 		error = 'Invalid login or username'
@@ -150,8 +150,8 @@ def loginAuthStaff():
 	if(data):
 		#creates a session for the the user
 		#session is a built in
-		session['username'] = username
-		return redirect(url_for('home'))
+		session['staff'] = data
+		return redirect(url_for('staff_home'))
 	else:
 		#returns an error message to the html page
 		error = 'Invalid login or username'
@@ -221,28 +221,16 @@ def registerAuthStaff():
         cursor.close()
         return render_template('index.html')
 
-@app.route('/home')
-def home():
-    username = session['username']
-    cursor = conn.cursor();
-    query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
-    cursor.execute(query, (username))
-    data1 = cursor.fetchall()
-    for each in data1:
-        print(each['blog_post'])
-    cursor.close()
-    return render_template('home.html', username=username, posts=data1)
 
 @app.route('/view_frequent_cust')
 def view_frequent_cust():
     cursor = conn.cursor();
-    username = session['username']
     try:
-        username = session['username']
+        user_name = session['staff']['user_name']
     except KeyError:
         return redirect(url_for('action_unauthorized'))
     query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
-    cursor.execute(query, (username))
+    cursor.execute(query, (user_name))
     airline = cursor.fetchone()
     cursor.close()
     if airline == None:
@@ -258,10 +246,11 @@ def view_frequent_cust():
     cursor.execute(query, (airline))
     data = cursor.fetchone()
     cursor.close()
+    print(data)
     if data:
         return render_template('view_frequent_cust.html', data = data)
     else:
-        return render_template('view_frequent_cust.html', error = 'no flights were taken')
+        return render_template('view_frequent_cust.html', error = 'no flights were taken this year')
 
 @app.route('/view_cust_flights')
 def view_cust_flights():
@@ -272,11 +261,11 @@ def viewCustFlightsAction():
     email = request.form['email']
     cursor = conn.cursor();
     try:
-        username = session['username']
+        user_name = session['staff']['user_name']
     except KeyError:
         return redirect(url_for('action_unauthorized'))
     query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
-    cursor.execute(query, (username))
+    cursor.execute(query, (user_name))
     airline = cursor.fetchone()
     cursor.close()
     if airline == None:
@@ -287,8 +276,9 @@ def viewCustFlightsAction():
     FROM take NATURAL JOIN customer NATURAL JOIN flight
     WHERE (airline = %s) AND (YEAR(dep_datetime) = YEAR(CURDATE()) - 1) AND (customer.email = %s);'''
     cursor.execute(query, (airline, email))
-    data = cursor.fetchone()
+    data = cursor.fetchall()
     cursor.close()
+    print(data)
     if data:
         return render_template('view_cust_flights.html', data = data)
     else:
@@ -302,11 +292,11 @@ def view_sales():
 def viewSalesAction():
     cursor = conn.cursor();
     try:
-        username = session['username']
+        user_name = session['staff']['user_name']
     except KeyError:
         return redirect(url_for('action_unauthorized'))
     query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
-    cursor.execute(query, (username))
+    cursor.execute(query, (user_name))
     airline = cursor.fetchone()
     cursor.close()
     if airline == None:
@@ -339,11 +329,11 @@ def view_quarter():
 def viewQuarterAction():
     cursor = conn.cursor();
     try:
-        username = session['username']
+        user_name = session['staff']['user_name']
     except KeyError:
         return redirect(url_for('action_unauthorized'))
     query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
-    cursor.execute(query, (username))
+    cursor.execute(query, (user_name))
     airline = cursor.fetchone()
     cursor.close()
     if airline == None:
@@ -374,21 +364,185 @@ def viewQuarterAction():
     return render_template('pie_chart.html', title='Quarterly Sales', max=100000, set=zip(values, labels, colors))
 # graphing courtesy of Ruan Bekker https://blog.ruanbekker.com/blog/2017/12/14/graphing-pretty-charts-with-python-flask-and-chartjs/
 
+@app.route('/customerHome',methods=['POST','GET'])
+def customerHome():
+    if not session['customer']:
+        return redirect('/')
+    email = session['customer']['email']
+    name = session['customer']['name']
+    cursor = conn.cursor()
+    view_by = "dep_datetime"
+    qfuture = 'SELECT airline, flight_no, dep_datetime, dep_airport, arr_airport, status FROM take NATURAL JOIN flight WHERE email = %s  AND dep_datetime > NOW() ORDER BY %s ASC'
+    cursor.execute(qfuture, (email, view_by))
+    future_flight = cursor.fetchall()
+    qpast = 'SELECT airline, flight_no, dep_datetime, dep_airport, arr_airport,rate,comment FROM take NATURAL JOIN flight WHERE email = %s AND arr_datetime < NOW() ORDER BY %s DESC'
+    cursor.execute(qpast,(email,view_by))
+    past_flight = cursor.fetchall()
+    cursor.execute('SELECT*FROM airport')
+    city = cursor.fetchall()
+    #add cities in flight informations
+    for i in range(len(future_flight)):
+        for n in city:
+            if n['name']== future_flight[i]['dep_airport']:
+                future_flight[i]['dep_city'] = n['city']
+            if n['name']== future_flight[i]['arr_airport']:
+                future_flight[i]['arr_city'] = n['city']
+    for i in range(len(past_flight)):
+        for n in city:
+            if n['name']== past_flight[i]['dep_airport']:
+                past_flight[i]['dep_city'] = n['city']
+            if n['name']== past_flight[i]['arr_airport']:
+                past_flight[i]['arr_city'] = n['city']
+    return render_template('customer_home.html', name=name, email=email,future_flight=future_flight,past_flight=past_flight)
+@app.route('/viewMyFlight',methods=['GET','POST'])
+def view_my_flight():
+    email = session['customer']['email']
+    name = session['customer']['name']
+    cursor = conn.cursor()
+    view_by = request.form['view_by']
+    qfuture = 'SELECT airline, flight_no, dep_datetime, dep_airport, arr_airport, status FROM take NATURAL JOIN flight WHERE email = %s  AND dep_datetime > NOW() ORDER BY %s ASC'
+    cursor.execute(qfuture, (email, view_by))
+    future_flight = cursor.fetchall()
+    qpast = 'SELECT airline, flight_no, dep_datetime, dep_airport, arr_airport,rate,comment FROM take NATURAL JOIN flight WHERE email = %s AND arr_datetime < NOW() ORDER BY %s DESC'
+    cursor.execute(qpast,(email,view_by))
+    past_flight = cursor.fetchall()
+    cursor.execute('SELECT*FROM airport')
+    city = cursor.fetchall()
+    #add cities in flight informations
+    for i in range(len(future_flight)):
+        for n in city:
+            if n['name']== future_flight[i]['dep_airport']:
+                future_flight[i]['dep_city'] = n['city']
+            if n['name']== future_flight[i]['arr_airport']:
+                future_flight[i]['arr_city'] = n['city']
+    for i in range(len(past_flight)):
+        for n in city:
+            if n['name']== past_flight[i]['dep_airport']:
+                past_flight[i]['dep_city'] = n['city']
+            if n['name']== past_flight[i]['arr_airport']:
+                past_flight[i]['arr_city'] = n['city']
+    return render_template('customer_home.html', name=name, email=email,future_flight=future_flight,past_flight=past_flight)
 
-@app.route('/post', methods=['GET', 'POST'])
-def post():
-	username = session['username']
-	cursor = conn.cursor();
-	blog = request.form['blog']
-	query = 'INSERT INTO blog (blog_post, username) VALUES(%s, %s)'
-	cursor.execute(query, (blog, username))
-	conn.commit()
-	cursor.close()
-	return redirect(url_for('home'))
+@app.route('/addComment',methods=['GET','POST'])
+def add_comment():
+    cursor = conn.cursor()
+    email = session['customer']['email']
+    rate, comment = request.form["rate"], request.form["comment"]
+    flight_info = (email,request.form["cr_airline"],request.form["cr_flight_no"],request.form["cr_dep_datetime"])
+    cursor.execute("SELECT*FROM take WHERE email=%s AND airline=%s AND flight_no=%s AND dep_datetime=%s",flight_info)
+    if cursor.fetchall() is not None and rate in ('1','2','3','4','5'):
+        #store query information from html form in this tuple
+        cr_flight = (request.form["rate"],request.form["comment"],email,request.form["cr_airline"],request.form["cr_flight_no"],request.form["cr_dep_datetime"])
+        cursor.execute('UPDATE take SET rate=%s, comment=%s WHERE email=%s AND airline=%s AND flight_no=%s AND dep_datetime=%s',cr_flight)
+        conn.commit()
+        cursor.close()
+        message = 'Comment Placed'
+    else:
+        message = 'Incorrect Format or Information'
+    return render_template('customer_home.html', message=message)
+@app.route('/staff_home',methods=['GET','POST'])
+def staff_home():
+    cursor=conn.cursor()
+    airline = session["staff"]["airline"]
+    qflight = 'SELECT * FROM flight WHERE airline=%s AND dep_datetime>NOW()'
+    flight = cursor.execute(qflight,(airline))
+    cursor.close()
+    return render_template('staff_home.html')
 
-@app.route('/logout')
-def logout():
-	session.pop('username')
+
+@app.route('/customerSearch',methods=['GET','POST'])
+def customerSearch():
+    return render_template('customer_search.html')
+
+@app.route('/customerSearchResult', methods=['GET', 'POST'])
+def customerSearchResult():
+    dept_city_airport = request.form['dept_city']
+    dest_city_airport = request.form['dest_city']
+    dept_date = request.form['dept_date']
+    ret_date = request.form['ret_date']
+    cursor = conn.cursor()
+    if ret_date == '':
+        query = '''SELECT flight_no, airline, dep_datetime, arr_datetime,
+            dep_airport, arr_airport, a1.city AS dep_city, a2.city AS arr_city, base_price
+            FROM flight
+            INNER JOIN airport a1 on flight.dep_airport = a1.name
+            INNER JOIN airport a2 on flight.arr_airport = a2.name
+            WHERE (dep_airport = %s OR a1.city = %s) AND (arr_airport = %s OR a2.city = %s)
+            AND DATE(dep_datetime) = %s;'''
+        cursor.execute(query, (dept_city_airport, dept_city_airport, dest_city_airport, dest_city_airport, dept_date))
+    else:
+        query = '''SELECT flight_no, airline, dep_datetime, arr_datetime,
+            dep_airport, arr_airport, a1.city AS dep_city, a2.city AS arr_city, base_price
+            FROM flight
+            INNER JOIN airport a1 on flight.dep_airport = a1.name
+            INNER JOIN airport a2 on flight.arr_airport = a2.name
+            WHERE ((dep_airport = %s OR a1.city = %s) AND (arr_airport = %s OR a2.city = %s)
+            AND DATE(dep_datetime) = %s) OR ((dep_airport = %s OR a1.city = %s) AND (arr_airport = %s OR a2.city = %s)
+            AND DATE(dep_datetime) = %s);'''
+        cursor.execute(query, (
+        dept_city_airport, dept_city_airport, dest_city_airport, dest_city_airport, dept_date, dest_city_airport,
+        dest_city_airport, dept_city_airport, dept_city_airport, ret_date))
+    flight = cursor.fetchall()
+    cursor.close()
+    if data:
+        return render_template('flight_search.html', flight=flight)
+    else:
+        error = 'no flight available, please search again'
+        return render_template('flight_search.html', error=error)
+
+@app.route('/purchase', methods=['GET', 'POST'])
+def purchase():
+    return render_template('purchase.html')
+@app.route('/purchaseResult', methods=['GET', 'POST'])
+def purchaseResult():
+    cursor = conn.cursor()
+    message = None
+    while message==None:
+        airline, flight_no, dep_datetime = request.form['airline'],request.form['flight_no'],request.form['dep_datetime']
+        qflight = 'SELECT*FROM flight NATURAL JOIN airplane WHERE dep_datetime>NOW() AND airline= %s AND flight_no=%s AND dep_datetime=%s'
+        cursor.execute(qflight, (airline, flight_no, dep_datetime))
+        flight = cursor.fetchone()
+        if flight is None:
+            message = 'Flight Not Availible, Please Try Again'
+            break
+        base_price, seat_sold,capacity = int(flight['base_price']), int(flight['seat_sold']), int(flight['capacity'])
+        if seat_sold >= capacity:
+            message = 'Flight capacity is full'
+            break
+        elif seat_sold > 0.7*capacity:
+            price = round(1.2*base_price,2)
+        else:
+            price = round(base_price,2)
+        card_no, card_type, name, exp_date = request.form['card_no'], request.form['card_type'], request.form['name'], request.form['exp_date']
+        sold_datetime = datetime.now()
+        seat_sold += 1
+        cursor.execute('SELECT ticket_id FROM ticket')
+        new_ticket = str(random.randint(1000000000,9999999999))
+        tickets = []
+        for i in cursor.fetchall():
+            tickets.append(i['ticket_id'])
+        while new_ticket in tickets:
+            new_ticket = str(random.randint(1000000000, 9999999999))
+        add_ticket = 'INSERT INTO ticket values(%s,%s,%s,%s,%s,%s,%s)'
+        cursor.execute(add_ticket,(new_ticket,price,sold_datetime,card_type,card_no,name,exp_date))
+        add_take = 'INSERT INTO take values(%s,%s,%s,%s,%s,%s,%s)'
+        cursor.execute(add_take,(session['customer']['email'],flight_no,airline,dep_datetime,0,'',new_ticket))
+        add_passenger = 'UPDATE flight SET seat_sold=%s WHERE airline=%s AND flight_no=%s AND dep_datetime=%s'
+        cursor.execute(add_passenger,(seat_sold,airline,flight_no,dep_datetime))
+        conn.commit()
+        cursor.close()
+        message = 'Thank you, your total is:' + str(price)
+        break
+        #Create a new unique ticket id
+    return render_template("purchase.html",message=message)
+
+@app.route('/logoutStaff')
+def logoutStaff():
+	session.pop('staff')
+	return render_template('/logged_out.html', logged_out = 'Logged Out!')
+@app.route('/logoutCustomer')
+def logoutCustomer():
+	session.pop('customer')
 	return render_template('/logged_out.html', logged_out = 'Logged Out!')
 @app.route('/action_unauthorized')
 def action_unauthorized():

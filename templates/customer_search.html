@@ -17,9 +17,10 @@ tr:nth-child(even) {
   background-color: #dddddd;
 }
 </style>
+    <h1>Search My Flight</h1>
 </head>
 <body>
-{% if not message %}
+{% if not flight %}
 <form action="/flightSearchAction" method="POST">
 	<label for="dept_city">departure city or airport:</label><br>
 	<input type="text" name = "dept_city" placeholder="departure city or airport" required/> </br>
@@ -35,7 +36,8 @@ tr:nth-child(even) {
 	{% endif %}
 </form>
 {% endif %}
-{% if message %}
+
+{% if flight %}
 <table>
 	<th>Flight Number</th>
 	<th>Airline</th>
@@ -45,19 +47,22 @@ tr:nth-child(even) {
   <th>Arrival Airport</th>
   <th>Departure City</th>
   <th>Arrival City</th>
-  {% for line in message %}
+    <th>Base Price</th>
+  {% for line in flight %}
   	<tr>
-  		<td>{{line['flight_no']}}</td>
-  		<td>{{line['airline']}}</td>
-      <td>{{line['dep_datetime']}}</td>
-      <td>{{line['arr_datetime']}}</td>
-      <td>{{line['dep_airport']}}</td>
-      <td>{{line['arr_airport']}}</td>
-      <td>{{line['dep_city']}}</td>
-      <td>{{line['arr_city']}}</td>
+        <td>{{line['airline']}}</td>
+        <td>{{line['flight_no']}}</td>
+        <td>{{line['dep_datetime']}}</td>
+        <td>{{line['arr_datetime']}}</td>
+        <td>{{line['dep_airport']}}</td>
+        <td>{{line['arr_airport']}}</td>
+        <td>{{line['dep_city']}}</td>
+        <td>{{line['arr_city']}}</td>
+        <td>{{ line['base_price']}}</td>
   	</tr>
   {% endfor %}
 {% endif %}
-<a href="/staff_home">Refresh</a>
+<a href="/customerHome">Go back</a>
+<a href="/purchase">Purchase Ticket</a>
 </body>
 </html>

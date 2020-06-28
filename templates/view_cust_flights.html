@@ -19,7 +19,7 @@ tr:nth-child(even) {
 </style>
 </head>
 <body>
-  {% if not message %}
+  {% if not data %}
   <form action="/viewCustFlightsAction" method="POST">
   	<label for="email">customer email:</label><br>
   	<input type="text" name = "email" placeholder="customer email" required/> </br>
@@ -29,14 +29,14 @@ tr:nth-child(even) {
   	{% endif %}
   </form>
   {% endif %}
-  {% if message %}
+  {% if data %}
   <table>
   	<th>Departure Airport</th>
   	<th>Arrival Airport</th>
     <th>Departure Date and Time</th>
     <th>Flight Number</th>
     <th>Ticket ID</th>
-    {% for line in message %}
+    {% for line in data %}
     	<tr>
     		<td>{{line['dep_airport']}}</td>
     		<td>{{line['arr_airport']}}</td>
@@ -46,5 +46,6 @@ tr:nth-child(even) {
     	</tr>
     {% endfor %}
   {% endif %}
+  <a href="/staff_home">Go Home</a>
   </body>
   </html>
