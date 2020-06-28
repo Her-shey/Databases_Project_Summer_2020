@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body>
+<style type="text/css">
+			table,td,th {
+				text-align: center;
+				vertical-align:middle;
+				border-style: solid
+			}
+		</style>
+
+
+{% if message %}
+  
+
+  <table style="width: 60%;margin:auto">
+  	
+    <th>Top Three Destinations</th> 
+    {% for line in message %}
+    	<tr>
+    		
+            <td>{{data['rate_and_comment']}}</td>
+    	</tr>
+    {% endfor %}
+  {% endif %}
+
+<a href="/staffHome">Go back</a>
+
+</body>
+</html>
