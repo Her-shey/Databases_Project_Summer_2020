@@ -4,7 +4,11 @@
 <head>
 
 </head>
-
+<script>
+function myalert(){
+          alert("Logged Out!");
+          }
+</script>
 <body>
 {% if not message %}
 	<a href="/customer_login">Login as Customer</a>
@@ -26,6 +30,7 @@
 	        <hr>
 	{% endfor %}
 	{% endif %}
+
 </body>
 
 </html>

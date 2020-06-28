@@ -389,7 +389,7 @@ def post():
 @app.route('/logout')
 def logout():
 	session.pop('username')
-	return redirect('/')
+	return render_template('/logged_out.html', logged_out = 'Logged Out!')
 @app.route('/action_unauthorized')
 def action_unauthorized():
     return render_template('action_unauthorized.html')
