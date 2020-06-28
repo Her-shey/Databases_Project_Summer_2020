@@ -15,7 +15,23 @@ conn = pymysql.connect(host='localhost',
 #Define a route to hello function
 @app.route('/')
 def hello():
-	return render_template('index.html')
+    try:
+        session['customer'] != None
+    except KeyError:
+        try:
+            session['staff'] != None
+        except KeyError:
+            return render_template('index.html')
+        else:
+            return redirect(url_for('staff_home'))
+    else:
+        return redirect(url_for('customerHome'))
+    #      session['customer'] != None:
+    #     return redirect(url_for('customerHome'))
+    # elif session['staff'] != None:
+    #     return redirect(url_for('staff_home'))
+    # else:
+    #     return render_template('index.html')
 
 @app.route('/public_info')
 def publicInfo():
@@ -366,8 +382,6 @@ def viewQuarterAction():
 
 @app.route('/customerHome',methods=['POST','GET'])
 def customerHome():
-    if not session['customer']:
-        return redirect('/')
     email = session['customer']['email']
     name = session['customer']['name']
     cursor = conn.cursor()
