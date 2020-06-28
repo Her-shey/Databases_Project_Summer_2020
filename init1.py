@@ -331,6 +331,48 @@ def viewSalesAction():
     return render_template('bar_chart.html', title='Monthly Sales', max=10, labels=labels, values=values)
 # graphing courtesy of Ruan Bekker https://blog.ruanbekker.com/blog/2017/12/14/graphing-pretty-charts-with-python-flask-and-chartjs/
 
+@app.route('/view_quarter')
+def view_quarter():
+    return render_template('view_quarter.html')
+
+@app.route('/viewQuarterAction', methods=['POST'])
+def viewQuarterAction():
+    cursor = conn.cursor();
+    try:
+        username = session['username']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (username))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    start_date = request.form['start_date']
+    end_date = request.form['end_date']
+    cursor = conn.cursor();
+    # query = '''SELECT YEAR(sold_datetime) AS year, QUARTER(sold_datetime) AS quarter, SUM(price) as revenue
+    # FROM ticket NATURAL JOIN take
+    # WHERE (sold_datetime BETWEEN %s AND %s) AND (airline = %s)
+    # GROUP BY YEAR(sold_datetime), QUARTER(sold_datetime);'''
+    query = '''SELECT YEAR(sold_datetime) AS year, QUARTER(sold_datetime) AS quarter, SUM(price) as revenue
+    FROM ticket
+    WHERE (sold_datetime BETWEEN %s AND %s)
+    GROUP BY YEAR(sold_datetime), QUARTER(sold_datetime);'''
+    # cursor.execute(query, (start_date, end_date, airline))
+    cursor.execute(query, (start_date, end_date))
+    data = cursor.fetchall()
+    cursor.close()
+    print(data)
+    labels = []
+    values = []
+    colors = ["#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA",]
+    for each in data:
+        labels.append(str(each['year'])+ ' Q' +str(each['quarter']))
+        values.append(each['revenue'])
+    return render_template('pie_chart.html', title='Quarterly Sales', max=100000, set=zip(values, labels, colors))
+# graphing courtesy of Ruan Bekker https://blog.ruanbekker.com/blog/2017/12/14/graphing-pretty-charts-with-python-flask-and-chartjs/
 
 
 @app.route('/post', methods=['GET', 'POST'])
