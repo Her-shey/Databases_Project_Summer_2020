@@ -23,6 +23,7 @@ create table ticket(
   card_no varchar(19),
   name varchar(50),
   exp_date date,
+  price numeric(8, 2),
   primary key (ticket_id)
 );
 create table airline_staff(

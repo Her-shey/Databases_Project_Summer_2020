@@ -1,7 +1,7 @@
 #Import Flask Library
 from flask import Flask, render_template, request, session, url_for, redirect
 import pymysql.cursors
-
+import matplotlib
 #Initialize the app from Flask
 app = Flask(__name__)
 
@@ -235,6 +235,27 @@ def home():
     cursor.close()
     return render_template('home.html', username=username, posts=data1)
 
+@app.route('/view_frequent_cust')
+def view_frequent_cust():
+    cursor = conn.cursor();
+    username = session['username']
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (username))
+    airline = cursor.fetchone()
+    cursor.close()
+    query = '''SELECT take.email, COUNT(*)
+    FROM take NATURAL JOIN customer
+    WHERE airline = %s
+    GROUP BY email
+    ORDER BY COUNT(*) DESC
+    LIMIT 1;'''
+    cursor.execute(query, (airline))
+    data = cursor.fetchone()
+    cursor.close()
+    if data:
+        return render_template('view_frequent_cust.html', data = data)
+    else:
+        return render_template('view_frequent_cust.html', error = 'no flights were taken')
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
