@@ -70,7 +70,7 @@ create table flight(
   arr_airport varchar(50),
   airplane_id char(5),
   primary key (flight_no, airline, dep_datetime),
-  foreign key (dept_airport) references airport(name)
+  foreign key (dep_airport) references airport(name)
     on delete cascade,
   foreign key (arr_airport) references airport(name)
     on delete cascade,
