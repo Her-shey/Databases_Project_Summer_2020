@@ -1,0 +1,24 @@
+<html>
+<head>
+</head>
+<body>
+<form action="/addAirplane" method="POST">
+	<label for="airplane_id">airplane_id:</label><br>
+	<input type="text" name = "airplane_id" placeholder="airplane_id" required/> </br>
+
+	<label for="airline">airline:</label><br>
+	<input type="text" name = "airline" placeholder="airline" required/></br>
+
+	<label for="capacity">capacity:</label><br>
+	<input type="text" name = "capacity" placeholder="capacity" required/></br>
+
+	
+   	<input type="submit" value = Submit />
+    
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+</form>
+<a href="/staffHome">Go back</a>
+</body>
+</html>

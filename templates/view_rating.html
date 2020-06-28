@@ -1,0 +1,66 @@
+
+<html>
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+<style type="text/css">
+			table,td,th {
+				text-align: center;
+				vertical-align:middle;
+				border-style: solid
+			}
+		</style>
+  {% if not message %}
+   <table>
+  	<th>Flight No</th>
+  	<th>Average Rating</th>
+        
+    	<tr>
+    		<td>{{data['flight_no']}}</td>
+    		<td>{{data['rating']}}</td>
+                
+    	</tr>
+  
+  <form action="/viewFlightRating" method="POST">
+  	<label for="flight_no">Search ratings for flight_no:</label><br>
+  	<input type="text" name = "flight_no" placeholder="flight_nol" required/> </br>
+  	<input type="submit" value = Search />
+  	{% if error %}
+  		<p class="error"><strong>Error:</strong> {{error}}</p>
+  	{% endif %}
+  </form>
+  
+  {% endif %}
+  {% if message %}
+  
+
+  <table style="width: 60%;margin:auto">
+  	
+    <div style="text-align:center"> <th>Comments</th> </div >
+    {% for line in message %}
+    	<tr>
+    		
+            <td>{{data['rate_and_comment']}}</td>
+    	</tr>
+    {% endfor %}
+  {% endif %}
+    <a href="/staffHome">Go back</a>
+  </body>
+  </html>

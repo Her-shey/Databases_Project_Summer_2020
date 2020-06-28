@@ -1,0 +1,44 @@
+<html>
+<head>
+</head>
+<body>
+<form action="/createFlight" method="POST">
+	<label for="flight_no">flight_no:</label><br>
+	<input type="text" name = "flight_no" placeholder="flight_no" required/> </br>
+
+	<label for="airline">airline:</label><br>
+	<input type="text" name = "airline" placeholder="airline" required/></br>
+
+	<label for="dep_datetime">dep_datetime:</label><br>
+	<input type="datetime-local" name = "dep_datetime" placeholder="dep_datetime" required/></br>
+
+	<label for="arr_datetime">arr_datetime:</label><br>
+	<input type="datetime-local" name = "arr_datetime" placeholder="arr_datetime" /></br>
+
+	<label for="status">status:</label><br>
+	<input type="text" name = "status" placeholder="status" required/></br>
+
+	<label for="base_price">base_price:</label><br>
+	<input type="text" name = "base_price" placeholder="base_price" required/></br>
+    
+   	<label for="seat_sold">seat_sold:</label><br>
+	<input type="text" name = "seat_sold" placeholder="seat_sold" required/></br>
+    
+    	<label for="dept_airport">dept_airport:</label><br>
+	<input type="text" name = "dept_airport" placeholder="dept_airport" required/></br>
+    
+    	<label for="arr_airport">arr_airport:</label><br>
+	<input type="text" name = "arr_airport" placeholder="arr_airport" required/></br>
+    
+   	<label for="airplane_id">airplane_id:</label><br>
+	<input type="text" name = "airplane_id" placeholder="airplane_id" required/></br>
+    
+   	<input type="submit" value = Submit />
+    
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+</form>
+<a href="/staffHome">Go back</a>
+</body>
+</html>
