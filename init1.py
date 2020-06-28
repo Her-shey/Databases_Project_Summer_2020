@@ -285,8 +285,8 @@ def viewCustFlightsAction():
         return redirect(url_for('action_unauthorized'))
     airline = airline['airline']
     cursor = conn.cursor();
-    query = '''SELECT take.email AS email, name, dep_datetime
-    FROM take NATURAL JOIN customer
+    query = '''SELECT dep_airport, arr_airport, flight.dep_datetime as dep_datetime, flight.flight_no as flight_no, ticket_id
+    FROM take NATURAL JOIN customer NATURAL JOIN flight
     WHERE (airline = %s) AND (YEAR(dep_datetime) = YEAR(CURDATE()) - 1) AND (customer.email = %s);'''
     cursor.execute(query, (airline, email))
     data = cursor.fetchone()

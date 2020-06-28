@@ -31,24 +31,18 @@ tr:nth-child(even) {
   {% endif %}
   {% if message %}
   <table>
-  	<th>Flight Number</th>
-  	<th>Airline</th>
+  	<th>Departure Airport</th>
+  	<th>Arrival Airport</th>
     <th>Departure Date and Time</th>
-    <th>Arrival Date and Time</th>
-    <th>Departure Airport</th>
-    <th>Arrival Airport</th>
-    <th>Departure City</th>
-    <th>Arrival City</th>
+    <th>Flight Number</th>
+    <th>Ticket ID</th>
     {% for line in message %}
     	<tr>
-    		<td>{{line['flight_no']}}</td>
-    		<td>{{line['airline']}}</td>
+    		<td>{{line['dep_airport']}}</td>
+    		<td>{{line['arr_airport']}}</td>
         <td>{{line['dep_datetime']}}</td>
-        <td>{{line['arr_datetime']}}</td>
-        <td>{{line['dep_airport']}}</td>
-        <td>{{line['arr_airport']}}</td>
-        <td>{{line['dep_city']}}</td>
-        <td>{{line['arr_city']}}</td>
+        <td>{{line['flight_no']}}</td>
+        <td>{{line['ticket_id']}}</td>
     	</tr>
     {% endfor %}
   {% endif %}
