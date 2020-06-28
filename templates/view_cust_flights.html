@@ -1,0 +1,56 @@
+<html>
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+  {% if not message %}
+  <form action="/viewCustFlightsAction" method="POST">
+  	<label for="email">customer email:</label><br>
+  	<input type="text" name = "email" placeholder="customer email" required/> </br>
+  	<input type="submit" value = Search />
+  	{% if error %}
+  		<p class="error"><strong>Error:</strong> {{error}}</p>
+  	{% endif %}
+  </form>
+  {% endif %}
+  {% if message %}
+  <table>
+  	<th>Flight Number</th>
+  	<th>Airline</th>
+    <th>Departure Date and Time</th>
+    <th>Arrival Date and Time</th>
+    <th>Departure Airport</th>
+    <th>Arrival Airport</th>
+    <th>Departure City</th>
+    <th>Arrival City</th>
+    {% for line in message %}
+    	<tr>
+    		<td>{{line['flight_no']}}</td>
+    		<td>{{line['airline']}}</td>
+        <td>{{line['dep_datetime']}}</td>
+        <td>{{line['arr_datetime']}}</td>
+        <td>{{line['dep_airport']}}</td>
+        <td>{{line['arr_airport']}}</td>
+        <td>{{line['dep_city']}}</td>
+        <td>{{line['arr_city']}}</td>
+    	</tr>
+    {% endfor %}
+  {% endif %}
+  </body>
+  </html>

@@ -239,13 +239,21 @@ def home():
 def view_frequent_cust():
     cursor = conn.cursor();
     username = session['username']
+    try:
+        username = session['username']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
     query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
     cursor.execute(query, (username))
     airline = cursor.fetchone()
     cursor.close()
-    query = '''SELECT take.email, COUNT(*)
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    cursor = conn.cursor();
+    query = '''SELECT take.email AS email, name, COUNT(*) AS flight_count
     FROM take NATURAL JOIN customer
-    WHERE airline = %s
+    WHERE airline = %s AND YEAR(dep_datetime) = YEAR(CURDATE())
     GROUP BY email
     ORDER BY COUNT(*) DESC
     LIMIT 1;'''
@@ -256,6 +264,37 @@ def view_frequent_cust():
         return render_template('view_frequent_cust.html', data = data)
     else:
         return render_template('view_frequent_cust.html', error = 'no flights were taken')
+
+@app.route('/view_cust_flights')
+def view_cust_flights():
+    return render_template('view_cust_flights.html')
+
+@app.route('/viewCustFlightsAction', methods=['POST'])
+def viewCustFlightsAction():
+    email = request.form['email']
+    cursor = conn.cursor();
+    try:
+        username = session['username']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (username))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    cursor = conn.cursor();
+    query = '''SELECT take.email AS email, name, dep_datetime
+    FROM take NATURAL JOIN customer
+    WHERE (airline = %s) AND (YEAR(dep_datetime) = YEAR(CURDATE()) - 1) AND (customer.email = %s);'''
+    cursor.execute(query, (airline, email))
+    data = cursor.fetchone()
+    cursor.close()
+    if data:
+        return render_template('view_cust_flights.html', data = data)
+    else:
+        return render_template('view_cust_flights.html', error = 'no flights were taken')
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
@@ -272,6 +311,10 @@ def post():
 def logout():
 	session.pop('username')
 	return redirect('/')
+@app.route('/action_unauthorized')
+def action_unauthorized():
+    return render_template('action_unauthorized.html')
+
 
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000

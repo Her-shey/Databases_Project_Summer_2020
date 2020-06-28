@@ -21,15 +21,13 @@ tr:nth-child(even) {
 <body>
   {% if data %}
   <table>
-  	<th>Flight Number</th>
-  	<th>Airline</th>
-    <th>Departure Date and Time</th>
-    <th>Status</th>
+  	<th>Customer Email</th>
+  	<th>Customer Name</th>
+    <th>Flights Count</th>
     	<tr>
-    		<td>{{message['flight_no']}}</td>
-    		<td>{{message['airline']}}</td>
-        <td>{{message['dep_datetime']}}</td>
-        <td>{{message['status']}}</td>
+    		<td>{{data['email']}}</td>
+    		<td>{{data['name']}}</td>
+        <td>{{data['flight_count']}}</td>
     	</tr>
   {% endif %}
   {% if error %}
