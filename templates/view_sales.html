@@ -1,0 +1,41 @@
+<html>
+<head>
+</head>
+<script>
+function getdateyear(){
+          var now = new Date();
+          var year = now.getFullYear();
+          var start = new Date(year-1, 00, 02);
+          var end = new Date(year-1, 11, 32);
+          document.getElementById("start_date").valueAsDate= start;
+          document.getElementById("end_date").valueAsDate= end;
+          }
+function getdatemonth(){
+          var now = new Date();
+          var year = now.getFullYear();
+          var month = now.getMonth();
+          var date = now.getDate();
+          var start = new Date(year, month-1, 02);
+          var end = new Date(year, month, 01);
+          document.getElementById("start_date").valueAsDate= start;
+          document.getElementById("end_date").valueAsDate= end;
+          }
+</script>
+<body>
+  {% if not message %}
+  <form action="/viewSalesAction" method="POST">
+  	<label for="start_date">start date:</label><br>
+  	<input type="date" id = "start_date" name="start_date" required/> </br>
+    <label for="end_date">end date:</label><br>
+  	<input type="date" id = "end_date" name="end_date" required/> </br>
+    <button onclick="getdateyear()">Last Year</button>
+    <button onclick="getdatemonth()">Last Month</button>
+  	<input type="submit" value = Search />
+  	{% if error %}
+  		<p class="error"><strong>Error:</strong> {{error}}</p>
+  	{% endif %}
+  </form>
+  {% endif %}
+
+  </body>
+  </html>

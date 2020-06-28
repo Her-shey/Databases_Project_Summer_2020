@@ -24,6 +24,7 @@ create table ticket(
   name varchar(50),
   exp_date date,
   price numeric(8, 2),
+  sold_datetime datetime,
   primary key (ticket_id)
 );
 create table airline_staff(

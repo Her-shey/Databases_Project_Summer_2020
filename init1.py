@@ -1,7 +1,6 @@
 #Import Flask Library
-from flask import Flask, render_template, request, session, url_for, redirect
+from flask import Flask, render_template, request, session, url_for, redirect, Markup
 import pymysql.cursors
-import matplotlib
 #Initialize the app from Flask
 app = Flask(__name__)
 
@@ -224,7 +223,6 @@ def registerAuthStaff():
 
 @app.route('/home')
 def home():
-
     username = session['username']
     cursor = conn.cursor();
     query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
@@ -295,6 +293,45 @@ def viewCustFlightsAction():
         return render_template('view_cust_flights.html', data = data)
     else:
         return render_template('view_cust_flights.html', error = 'no flights were taken')
+
+@app.route('/view_sales')
+def view_sales():
+    return render_template('view_sales.html')
+
+@app.route('/viewSalesAction', methods=['POST'])
+def viewSalesAction():
+    cursor = conn.cursor();
+    try:
+        username = session['username']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (username))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    start_date = request.form['start_date']
+    end_date = request.form['end_date']
+    cursor = conn.cursor();
+    query = '''SELECT YEAR(sold_datetime) AS year, MONTH(sold_datetime) AS month, COUNT(*) as sales
+    FROM ticket NATURAL JOIN take
+    WHERE (sold_datetime BETWEEN %s AND %s) AND (airline = %s)
+    GROUP BY YEAR(sold_datetime), MONTH(sold_datetime);'''
+    cursor.execute(query, (start_date, end_date, airline))
+    data = cursor.fetchall()
+    cursor.close()
+    print(data)
+    labels = []
+    values = []
+    for each in data:
+        labels.append(str(each['year'])+'-'+str(each['month']))
+        values.append(each['sales'])
+    return render_template('bar_chart.html', title='Monthly Sales', max=10, labels=labels, values=values)
+# graphing courtesy of Ruan Bekker https://blog.ruanbekker.com/blog/2017/12/14/graphing-pretty-charts-with-python-flask-and-chartjs/
+
+
 
 @app.route('/post', methods=['GET', 'POST'])
 def post():
