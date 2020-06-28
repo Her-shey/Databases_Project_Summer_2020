@@ -367,7 +367,7 @@ def viewQuarterAction():
     print(data)
     labels = []
     values = []
-    colors = ["#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA",]
+    colors = ["#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA"]
     for each in data:
         labels.append(str(each['year'])+ ' Q' +str(each['quarter']))
         values.append(each['revenue'])
