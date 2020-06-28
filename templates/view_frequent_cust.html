@@ -1,0 +1,40 @@
+<html>
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+  {% if data %}
+  <table>
+  	<th>Flight Number</th>
+  	<th>Airline</th>
+    <th>Departure Date and Time</th>
+    <th>Status</th>
+    	<tr>
+    		<td>{{message['flight_no']}}</td>
+    		<td>{{message['airline']}}</td>
+        <td>{{message['dep_datetime']}}</td>
+        <td>{{message['status']}}</td>
+    	</tr>
+  {% endif %}
+  {% if error %}
+  <p class="error"><strong>Error:</strong> {{error}}</p>
+  {% endif %}
+  <a href="/">Go back</a>
+  </body>
+  </html>
