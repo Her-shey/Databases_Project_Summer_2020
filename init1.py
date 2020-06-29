@@ -269,19 +269,19 @@ def viewFlightsAction():
      INNER JOIN airport a1 on flight.dep_airport = a1.name
      INNER JOIN airport a2 on flight.arr_airport = a2.name
      WHERE (airline = %s)
-     AND (dep_datetime >= %s)
-     AND (dep_datetime <= %s)
-     AND (dep_airport = %s OR a1.city = %s)
-     AND (arr_airport = %s OR a2.city = %s)'''
+     AND (DATE(dep_datetime) >= %s)
+     AND (DATE(dep_datetime) <= %s)
+     AND (flight.dep_airport LIKE %s OR a1.city LIKE %s)
+     AND (flight.arr_airport LIKE %s OR a2.city LIKE %s)'''
     if start_date == '':
         start_date = 'dep_datetime'
     if end_date == '':
         end_date = 'dep_datetime'
     if dep_city == '':
-        dep_city = 'dep_airport'
+        dep_city = '%'
     if dest_city == '':
-        dest_city = 'arr_airport'
-    print(query)
+        dest_city = '%'
+    print(dep_city)
     cursor.execute(query, (airline, start_date, end_date, dep_city, dep_city, dest_city, dest_city))
     message = cursor.fetchall()
     cursor.close()
@@ -844,7 +844,7 @@ def purchaseResult():
     message = None
     while message==None:
         airline, flight_no, dep_datetime = request.form['airline'],request.form['flight_no'],request.form['dep_datetime']
-        qflight = 'SELECT*FROM flight NATURAL JOIN airplane WHERE dep_datetime>NOW() AND airline= %s AND flight_no=%s AND DATE(dep_datetime)=%s'
+        qflight = 'SELECT*FROM flight NATURAL JOIN airplane WHERE dep_datetime>NOW() AND airline= %s AND flight_no=%s AND dep_datetime=%s'
         cursor.execute(qflight, (airline, flight_no, dep_datetime))
         flight = cursor.fetchone()
         if flight is None:

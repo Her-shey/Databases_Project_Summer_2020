@@ -46,10 +46,10 @@ function getnextmonth(){
   	<label for="dest_city">destination city or airport:</label><br>
   	<input type="text" name = "dest_city" placeholder="destination city or airport"/></br>
   	<label for="start_date">start date:</label><br>
-  	<input type="date" id = "start_date" name="start_date" /> </br>
+  	<input type="date" id = "start_date" name="start_date" required/> </br>
     <label for="end_date">end date:</label><br>
-  	<input type="date" id = "end_date" name="end_date" /> </br>
-    <button onclick="getdatemonth()">Next 30 Days</button>
+  	<input type="date" id = "end_date" name="end_date" required/> </br>
+    <button onclick="getnextmonth()">Next 30 Days</button>
   	<input type="submit" value = Search />
   	{% if error %}
   		<p class="error"><strong>Error:</strong> {{error}}</p>
