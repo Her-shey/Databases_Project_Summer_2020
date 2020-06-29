@@ -2,18 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ session["airline"]}} Mangement System</title>
-    <h1>User: {{session["first_name"]}} {{session["last_name"]}}</h1>
+    <h1>{{session['staff']["airline"]}} Mangement System</h1>
+    <h1>Staff: {{session['staff']["first_name"]}} {{session['staff']["last_name"]}}</h1>
 </head>
 <body>
 
 
 
-<a href="/view_frequent_cust">View Frequent Customer</a>
-<a href="/view_cust_flights">View Customer's Flights</a>
-<a href="/view_sales">View Sales</a>
-<a href="/view_quarter">View Quarterly Performance</a>
-<a href="/staff_home">Go Home</a>
-<a href="/logoutStaff">Logout</a>
+<p><a href="/view_flights">View Flights</a></p>
+<p><a href="/create_flight">Create New Flights</a></p>
+<p><a href="/change_status">Change Status</a></p>
+<p><a href="/add_airplane">Add Airplane</a></p>
+<p><a href="/add_airport">Add Airport</a></p>
+<p><a href="/view_rating">View Flight Rating</a></p>
+<p><a href="/view_frequent_cust">View Frequent Customer</a></p>
+<p><a href="/view_cust_flights">View Customer's Flights</a></p>
+<p><a href="/view_sales">View Sales</a></p>
+<p><a href="/view_quarter">View Quarterly Performance</a></p>
+<p><a href="/staff_home">Go Home</a></p>
+<p><a href="/logoutStaff">Logout</a></p>
 </body>
 </html>

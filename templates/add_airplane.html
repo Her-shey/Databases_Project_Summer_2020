@@ -1,24 +1,50 @@
 <html>
 <head>
 </head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
 <body>
 <form action="/addAirplane" method="POST">
 	<label for="airplane_id">airplane_id:</label><br>
 	<input type="text" name = "airplane_id" placeholder="airplane_id" required/> </br>
 
-	<label for="airline">airline:</label><br>
-	<input type="text" name = "airline" placeholder="airline" required/></br>
 
 	<label for="capacity">capacity:</label><br>
 	<input type="text" name = "capacity" placeholder="capacity" required/></br>
 
-	
+
    	<input type="submit" value = Submit />
-    
+
 	{% if error %}
 		<p class="error"><strong>Error:</strong> {{error}}</p>
 	{% endif %}
+	<table>
+		<th>Airplane ID</th>
+		<th>Airline</th>
+	  <th>Capacity</th>
+	  {% for line in message %}
+	  	<tr>
+	  		<td>{{line['airplane_id']}}</td>
+	  		<td>{{line['airline']}}</td>
+	      <td>{{line['capacity']}}</td>
+	  	</tr>
+	  {% endfor %}
 </form>
-<a href="/staffHome">Go back</a>
+<a href="/">Go Home</a>
 </body>
 </html>

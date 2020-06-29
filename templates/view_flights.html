@@ -1,0 +1,80 @@
+<html>
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<script>
+function getdateyear(){
+          var now = new Date();
+          var year = now.getFullYear();
+          var start = new Date(year-1, 00, 02);
+          var end = new Date(year-1, 11, 32);
+          document.getElementById("start_date").valueAsDate= start;
+          document.getElementById("end_date").valueAsDate= end;
+          }
+function getnextmonth(){
+          var now = new Date();
+          var year = now.getFullYear();
+          var month = now.getMonth();
+          var date = now.getDate();
+          var start = new Date(year, month, date);
+          var end = new Date(year, month, date+30);
+          document.getElementById("start_date").valueAsDate= start;
+          document.getElementById("end_date").valueAsDate= end;
+          }
+</script>
+<body>
+  {% if not message %}
+  <form action="/viewFlightsAction" method="POST">
+    <label for="dept_city">departure city or airport:</label><br>
+  	<input type="text" name = "dept_city" placeholder="departure city or airport"/> </br>
+  	<label for="dest_city">destination city or airport:</label><br>
+  	<input type="text" name = "dest_city" placeholder="destination city or airport"/></br>
+  	<label for="start_date">start date:</label><br>
+  	<input type="date" id = "start_date" name="start_date" /> </br>
+    <label for="end_date">end date:</label><br>
+  	<input type="date" id = "end_date" name="end_date" /> </br>
+    <button onclick="getdatemonth()">Next 30 Days</button>
+  	<input type="submit" value = Search />
+  	{% if error %}
+  		<p class="error"><strong>Error:</strong> {{error}}</p>
+  	{% endif %}
+  </form>
+  {% endif %}
+  {% if message %}
+  <table>
+    <th>Flight Number</th>
+    <th>Departure Date and Time</th>
+    <th>Arrival Date and Time</th>
+  	<th>Departure Airport</th>
+  	<th>Arrival Airport</th>
+
+    {% for line in message %}
+    	<tr>
+        <td>{{line['flight_no']}}</td>
+        <td>{{line['dep_datetime']}}</td>
+        <td>{{line['arr_datetime']}}</td>
+    		<td>{{line['dep_airport']}}</td>
+    		<td>{{line['arr_airport']}}</td>
+    	</tr>
+    {% endfor %}
+  {% endif %}
+  <a href="/view_pass">View Passengers</a>
+  <a href="/staff_home">Go Home</a>
+  </body>
+  </html>

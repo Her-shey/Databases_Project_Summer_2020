@@ -1,13 +1,27 @@
 <html>
 <head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
 </head>
 <body>
-<form action="/createFlight" method="POST">
-	<label for="flight_no">flight_no:</label><br>
+<form action="/createFlightAction" method="POST">
+  <label for="flight_no">flight_no:</label><br>
 	<input type="text" name = "flight_no" placeholder="flight_no" required/> </br>
-
-	<label for="airline">airline:</label><br>
-	<input type="text" name = "airline" placeholder="airline" required/></br>
 
 	<label for="dep_datetime">dep_datetime:</label><br>
 	<input type="datetime-local" name = "dep_datetime" placeholder="dep_datetime" required/></br>
@@ -20,25 +34,49 @@
 
 	<label for="base_price">base_price:</label><br>
 	<input type="text" name = "base_price" placeholder="base_price" required/></br>
-    
+
    	<label for="seat_sold">seat_sold:</label><br>
 	<input type="text" name = "seat_sold" placeholder="seat_sold" required/></br>
-    
+
     	<label for="dept_airport">dept_airport:</label><br>
 	<input type="text" name = "dept_airport" placeholder="dept_airport" required/></br>
-    
+
     	<label for="arr_airport">arr_airport:</label><br>
 	<input type="text" name = "arr_airport" placeholder="arr_airport" required/></br>
-    
+
    	<label for="airplane_id">airplane_id:</label><br>
 	<input type="text" name = "airplane_id" placeholder="airplane_id" required/></br>
-    
+
    	<input type="submit" value = Submit />
-    
 	{% if error %}
 		<p class="error"><strong>Error:</strong> {{error}}</p>
 	{% endif %}
 </form>
-<a href="/staffHome">Go back</a>
+<table>
+	<th>Flight Number</th>
+	<th>Airline</th>
+  <th>Departure Date and Time</th>
+  <th>Arrival Date and Time</th>
+  <th>Status</th>
+  <th>Base Price</th>
+  <th>Departure Airport</th>
+  <th>Arrival Airport</th>
+  <th>Airplane ID</th>
+
+  {% for line in message %}
+  	<tr>
+  		<td>{{line['flight_no']}}</td>
+  		<td>{{line['airline']}}</td>
+      <td>{{line['dep_datetime']}}</td>
+      <td>{{line['arr_datetime']}}</td>
+      <td>{{line['status']}}</td>
+      <td>{{line['base_price']}}</td>
+      <td>{{line['dep_airport']}}</td>
+      <td>{{line['arr_airport']}}</td>
+      <td>{{line['airplane_id']}}</td>
+  	</tr>
+  {% endfor %}
+
+<a href="/">Go Home</a>
 </body>
 </html>

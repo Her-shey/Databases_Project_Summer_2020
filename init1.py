@@ -1,6 +1,8 @@
 #Import Flask Library
 from flask import Flask, render_template, request, session, url_for, redirect, Markup
 import pymysql.cursors
+from datetime import datetime
+import random
 #Initialize the app from Flask
 app = Flask(__name__)
 
@@ -237,6 +239,320 @@ def registerAuthStaff():
         cursor.close()
         return render_template('index.html')
 
+@app.route('/view_flights')
+def view_flights():
+    return render_template('view_flights.html')
+
+@app.route('/viewFlightsAction',  methods=['GET', 'POST'])
+def viewFlightsAction():
+    cursor = conn.cursor();
+    try:
+        user_name = session['staff']['user_name']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (user_name))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    start_date = request.form['start_date']
+    end_date = request.form['end_date']
+    dep_city = request.form['dept_city']
+    dest_city = request.form['dest_city']
+    cursor = conn.cursor();
+    query = '''SELECT flight.flight_no as flight_no,
+     flight.dep_datetime as dep_datetime,
+     arr_datetime, base_price, seat_sold, dep_airport, arr_airport
+     FROM flight
+     INNER JOIN airport a1 on flight.dep_airport = a1.name
+     INNER JOIN airport a2 on flight.arr_airport = a2.name
+     WHERE (airline = %s)
+     AND (dep_datetime >= %s)
+     AND (dep_datetime <= %s)
+     AND (dep_airport = %s OR a1.city = %s)
+     AND (arr_airport = %s OR a2.city = %s)'''
+    if start_date == '':
+        start_date = 'dep_datetime'
+    if end_date == '':
+        end_date = 'dep_datetime'
+    if dep_city == '':
+        dep_city = 'dep_airport'
+    if dest_city == '':
+        dest_city = 'arr_airport'
+    print(query)
+    cursor.execute(query, (airline, start_date, end_date, dep_city, dep_city, dest_city, dest_city))
+    message = cursor.fetchall()
+    cursor.close()
+    print(message)
+    if message:
+        return render_template('view_flights.html', message = message)
+    else:
+        return render_template('view_flights.html', error = 'no flights found based on your conditions!')
+
+@app.route('/view_pass')
+def view_pass():
+    return render_template('view_pass.html')
+
+@app.route('/viewPassAction',  methods=['GET', 'POST'])
+def viewPassAction():
+    cursor = conn.cursor();
+    try:
+        user_name = session['staff']['user_name']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (user_name))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    dept_city = request.form['dept_city']
+    flight_no = request.form['flight_no']
+    dept_date = request.form['dept_date']
+    cursor = conn.cursor();
+    query = '''SELECT take.email as email, customer.name as name
+     FROM flight
+     INNER JOIN airport a1 on flight.dep_airport = a1.name
+     NATURAL JOIN take
+     INNER JOIN customer on customer.email = take.email
+     WHERE (airline = %s)
+     AND (DATE(dep_datetime) = %s)
+     AND (flight.flight_no = %s)
+     AND (dep_airport = %s OR a1.city = %s)'''
+    cursor.execute(query, (airline, dept_date, flight_no, dept_city, dept_city))
+    message = cursor.fetchall()
+    cursor.close()
+    print(message)
+    if message:
+        return render_template('view_pass.html',message = message)
+    else:
+        return render_template('view_pass.html',error = 'no passenger found on said flight')
+
+@app.route('/create_flight')
+def create_flight():
+    cursor = conn.cursor();
+    try:
+        user_name = session['staff']['user_name']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (user_name))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    cursor = conn.cursor();
+    query = '''SELECT * FROM flight
+    WHERE (airline = %s)
+    AND (dep_datetime BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 30 DAY));'''
+    cursor.execute(query, (airline))
+    message = cursor.fetchall()
+    cursor.close()
+    return render_template('create_flight.html', message = message)
+@app.route('/createFlightAction', methods=['POST'])
+def createFlightAction():
+    cursor = conn.cursor();
+    try:
+        user_name = session['staff']['user_name']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (user_name))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    flight_no = request.form['flight_no']
+    dep_datetime = request.form['dep_datetime']
+    arr_datetime = request.form['arr_datetime']
+    status = request.form['status']
+    base_price = request.form['base_price']
+    seat_sold = request.form['seat_sold']
+    dept_airport = request.form['dept_airport']
+    arr_airport = request.form['arr_airport']
+    airplane_id = request.form['airplane_id']
+    cursor = conn.cursor();
+    query = '''INSERT INTO `flight` (`flight_no`, `airline`, `dep_datetime`,
+    `arr_datetime`, `status`, `base_price`, `seat_sold`, `dep_airport`, `arr_airport`, `airplane_id`)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);'''
+    cursor.execute(query, (flight_no, airline, dep_datetime, arr_datetime,
+    status, base_price, seat_sold, dept_airport, arr_airport, airplane_id))
+    conn.commit()
+    cursor.close()
+    return redirect(url_for('create_flight'))
+
+@app.route('/change_status')
+def change_status():
+    return render_template('change_status.html')
+
+@app.route('/changeStatusAction', methods=['POST'])
+def changeStatusAction():
+    cursor = conn.cursor();
+    try:
+        user_name = session['staff']['user_name']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (user_name))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    flight_no = request.form['flight_no']
+    dep_date = request.form['dept_date']
+    dept_airport = request.form['dept_airport']
+    status = request.form['status']
+    cursor = conn.cursor();
+    query = '''UPDATE flight
+    SET status = %s
+    WHERE (airline = %s) AND (flight_no = %s) AND (DATE(dep_datetime) = %s) AND (dep_airport = %s)'''
+    cursor.execute(query, (status, airline, flight_no, dep_date, dept_airport))
+    conn.commit()
+    cursor.close()
+    return render_template('change_status.html', error = 'Status Changed!')
+
+@app.route('/add_airplane')
+def add_airplane():
+    cursor = conn.cursor();
+    try:
+        user_name = session['staff']['user_name']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (user_name))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    cursor = conn.cursor();
+    query = '''SELECT * FROM airplane
+    WHERE (airline = %s);'''
+    cursor.execute(query, (airline))
+    message = cursor.fetchall()
+    cursor.close()
+    return render_template('add_airplane.html', message = message)
+@app.route('/addAirplane', methods=['POST'])
+def addAirplane():
+    cursor = conn.cursor();
+    try:
+        user_name = session['staff']['user_name']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (user_name))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    airplane_id = request.form['airplane_id']
+    capacity = request.form['capacity']
+    cursor = conn.cursor();
+    query = '''INSERT INTO `airplane` (`airplane_id`, `airline`, `capacity`)
+    VALUES (%s, %s, %s);'''
+    cursor.execute(query, (airplane_id, airline, capacity))
+    conn.commit()
+    cursor.close()
+    return redirect(url_for('add_airplane'))
+
+@app.route('/add_airport')
+def add_airport():
+    cursor = conn.cursor();
+    try:
+        user_name = session['staff']['user_name']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (user_name))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    cursor = conn.cursor();
+    query = '''SELECT * FROM airport;'''
+    cursor.execute(query)
+    message = cursor.fetchall()
+    cursor.close()
+    return render_template('add_airport.html', message = message)
+@app.route('/addAirport', methods=['POST'])
+def addAirport():
+    cursor = conn.cursor();
+    try:
+        user_name = session['staff']['user_name']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (user_name))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    name = request.form['name']
+    city = request.form['city']
+    cursor = conn.cursor();
+    query = '''INSERT INTO `airport` (`name`, `city`)
+    VALUES (%s, %s);'''
+    cursor.execute(query, (name, city))
+    conn.commit()
+    cursor.close()
+    return redirect(url_for('add_airport'))
+
+@app.route('/view_rating')
+def view_rating():
+    cursor = conn.cursor();
+    try:
+        user_name = session['staff']['user_name']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (user_name))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    cursor = conn.cursor();
+    query = '''SELECT flight.flight_no, flight.dep_datetime, AVG(rate) as rating
+    FROM flight NATURAL JOIN take
+    WHERE airline = %s
+    GROUP BY flight.flight_no, flight.dep_datetime;'''
+    cursor.execute(query, (airline))
+    message = cursor.fetchall()
+    cursor.close()
+    return render_template('view_rating.html', data = message)
+@app.route('/viewFlightRating', methods=['POST'])
+def viewFlightRating():
+    cursor = conn.cursor();
+    try:
+        user_name = session['staff']['user_name']
+    except KeyError:
+        return redirect(url_for('action_unauthorized'))
+    query = '''SELECT airline FROM airline_staff WHERE user_name = %s;'''
+    cursor.execute(query, (user_name))
+    airline = cursor.fetchone()
+    cursor.close()
+    if airline == None:
+        return redirect(url_for('action_unauthorized'))
+    airline = airline['airline']
+    flight_no = request.form['flight_no']
+    dept_date = request.form['dept_date']
+    cursor = conn.cursor();
+    query = '''SELECT name, rate, comment
+    FROM take NATURAL JOIN customer
+    WHERE airline = %s AND (flight_no = %s) AND (DATE(dep_datetime) = %s);'''
+    cursor.execute(query, (airline, flight_no, dept_date))
+    message = cursor.fetchall()
+    cursor.close()
+    return render_template('view_rating.html', message = message)
 
 @app.route('/view_frequent_cust')
 def view_frequent_cust():

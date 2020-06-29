@@ -27,40 +27,47 @@ tr:nth-child(even) {
 				border-style: solid
 			}
 		</style>
-  {% if not message %}
+  {% if data %}
    <table>
   	<th>Flight No</th>
+    <th>Departure Datetime</th>
   	<th>Average Rating</th>
-        
+      {% for line in data %}
     	<tr>
-    		<td>{{data['flight_no']}}</td>
-    		<td>{{data['rating']}}</td>
-                
+    		<td>{{line['flight_no']}}</td>
+        <td>{{line['dep_datetime']}}</td>
+    		<td>{{line['rating']}}</td>
     	</tr>
-  
+      {% endfor %}
   <form action="/viewFlightRating" method="POST">
   	<label for="flight_no">Search ratings for flight_no:</label><br>
-  	<input type="text" name = "flight_no" placeholder="flight_nol" required/> </br>
+  	<input type="text" name = "flight_no" placeholder="flight_no" required/> </br>
+    <label for="dept_date">departure date:</label><br>
+    <input type="date" name = "dept_date" placeholder="departure date" required/></br>
   	<input type="submit" value = Search />
   	{% if error %}
   		<p class="error"><strong>Error:</strong> {{error}}</p>
   	{% endif %}
   </form>
-  
+
   {% endif %}
   {% if message %}
-  
 
-  <table style="width: 60%;margin:auto">
-  	
-    <div style="text-align:center"> <th>Comments</th> </div >
+
+  <table>
+    <th>Name</th>
+  	<th>Rate</th>
+  	<th>Comment</th>
+
+
     {% for line in message %}
     	<tr>
-    		
-            <td>{{data['rate_and_comment']}}</td>
+    		<td>{{line['name']}}</td>
+    		<td>{{line['rate']}}</td>
+        <td>{{line['comment']}}</td>
     	</tr>
     {% endfor %}
-  {% endif %}
-    <a href="/staffHome">Go back</a>
+    <a href="/">Go Home</a>
+    {% endif %}
   </body>
   </html>

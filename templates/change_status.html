@@ -1,0 +1,53 @@
+<html>
+<head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+{% if not message %}
+<form action="/changeStatusAction" method="POST">
+	<label for="dept_airport">departure airport:</label><br>
+	<input type="text" name = "dept_airport" placeholder="departure airport" required/> </br>
+  <label for="flight_no">flight number:</label><br>
+	<input type="text" name = "flight_no" placeholder="flight number" required/></br>
+	<label for="dept_date">departure date:</label><br>
+	<input type="date" name = "dept_date" placeholder="departure date" required/></br>
+  <label for="status">status:</label><br>
+  <input type="text" name = "status" placeholder="status" required/></br>
+	<input type="submit" value = Commit />
+	{% if error %}
+		<p class="error">{{error}}</p>
+	{% endif %}
+</form>
+{% endif %}
+{% if message %}
+<table>
+	<th>Flight Number</th>
+	<th>Airline</th>
+  <th>Departure Date and Time</th>
+  <th>Status</th>
+  	<tr>
+  		<td>{{message['flight_no']}}</td>
+  		<td>{{message['airline']}}</td>
+      <td>{{message['dep_datetime']}}</td>
+      <td>{{message['status']}}</td>
+  	</tr>
+{% endif %}
+<a href="/">Go Home</a>
+</body>
+</html>

@@ -1,6 +1,23 @@
 <html>
 <head>
 </head>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
 <body>
 <form action="/addAirport" method="POST">
 	<label for="name">name:</label><br>
@@ -10,13 +27,25 @@
 	<label for="city">city:</label><br>
 	<input type="text" name = "city" placeholder="city" required/></br>
 
-	
-   	<input type="submit" value = Submit />
-    
+
+  <input type="submit" value = Submit />
+
 	{% if error %}
-		<p class="error"><strong>Error:</strong> {{error}}</p>
+		<p class="error">{{error}}</p>
 	{% endif %}
 </form>
-<a href="/staffHome">Go back</a>
+<table>
+	<th>Airport Name</th>
+	<th>City Name</th>
+
+
+  {% for line in message %}
+  	<tr>
+  		<td>{{line['name']}}</td>
+  		<td>{{line['city']}}</td>
+  	</tr>
+  {% endfor %}
+
+<a href="/">Go Home</a>
 </body>
 </html>
