@@ -844,7 +844,7 @@ def purchaseResult():
     message = None
     while message==None:
         airline, flight_no, dep_datetime = request.form['airline'],request.form['flight_no'],request.form['dep_datetime']
-        qflight = 'SELECT*FROM flight NATURAL JOIN airplane WHERE dep_datetime>NOW() AND airline= %s AND flight_no=%s AND dep_datetime=%s'
+        qflight = 'SELECT*FROM flight NATURAL JOIN airplane WHERE dep_datetime>NOW() AND airline= %s AND flight_no=%s AND DATE(dep_datetime)=%s'
         cursor.execute(qflight, (airline, flight_no, dep_datetime))
         flight = cursor.fetchone()
         if flight is None:
