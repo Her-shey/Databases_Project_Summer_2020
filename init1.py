@@ -380,9 +380,12 @@ def createFlightAction():
     query = '''INSERT INTO `flight` (`flight_no`, `airline`, `dep_datetime`,
     `arr_datetime`, `status`, `base_price`, `seat_sold`, `dep_airport`, `arr_airport`, `airplane_id`)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);'''
-    cursor.execute(query, (flight_no, airline, dep_datetime, arr_datetime,
-    status, base_price, seat_sold, dept_airport, arr_airport, airplane_id))
-    conn.commit()
+    try:
+        cursor.execute(query, (flight_no, airline, dep_datetime, arr_datetime,
+        status, base_price, seat_sold, dept_airport, arr_airport, airplane_id))
+        conn.commit()
+    except pymysql.Error:
+        render_template('create_flight.html', error = 'flight already exists!')
     cursor.close()
     return redirect(url_for('create_flight'))
 
@@ -412,8 +415,11 @@ def changeStatusAction():
     query = '''UPDATE flight
     SET status = %s
     WHERE (airline = %s) AND (flight_no = %s) AND (DATE(dep_datetime) = %s) AND (dep_airport = %s)'''
-    cursor.execute(query, (status, airline, flight_no, dep_date, dept_airport))
-    conn.commit()
+    try:
+        cursor.execute(query, (status, airline, flight_no, dep_date, dept_airport))
+        conn.commit()
+    except pymysql.Error:
+        render_template('change_status.html', error = 'Flight Not Found!')
     cursor.close()
     return render_template('change_status.html', error = 'Status Changed!')
 
@@ -457,8 +463,11 @@ def addAirplane():
     cursor = conn.cursor();
     query = '''INSERT INTO `airplane` (`airplane_id`, `airline`, `capacity`)
     VALUES (%s, %s, %s);'''
-    cursor.execute(query, (airplane_id, airline, capacity))
-    conn.commit()
+    try:
+        cursor.execute(query, (airplane_id, airline, capacity))
+        conn.commit()
+    except pymysql.IntegrityError:
+        return render_template('add_airplane.html', error = 'plane ID already exists!')
     cursor.close()
     return redirect(url_for('add_airplane'))
 
@@ -501,8 +510,11 @@ def addAirport():
     cursor = conn.cursor();
     query = '''INSERT INTO `airport` (`name`, `city`)
     VALUES (%s, %s);'''
-    cursor.execute(query, (name, city))
-    conn.commit()
+    try:
+        cursor.execute(query, (name, city))
+        conn.commit()
+    except pymysql.IntegrityError:
+        return render_template('add_airport.html', error = 'Airport already exists!')
     cursor.close()
     return redirect(url_for('add_airport'))
 
@@ -528,7 +540,10 @@ def view_rating():
     cursor.execute(query, (airline))
     message = cursor.fetchall()
     cursor.close()
-    return render_template('view_rating.html', data = message)
+    if message:
+        return render_template('view_rating.html', data = message)
+    else:
+        return render_template('view_rating.html', error = 'flight does not exist or comment does not exist')
 @app.route('/viewFlightRating', methods=['POST'])
 def viewFlightRating():
     cursor = conn.cursor();
