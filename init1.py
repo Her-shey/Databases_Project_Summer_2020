@@ -866,14 +866,28 @@ def purchaseResult():
         #Create a new unique ticket id
     return render_template("purchase.html",message=message)
 
+@app.route('/customerSpending',methods=['GET','POST'])
+def customerSpendinng():
+    cursor = conn.cursor()
+    try:
+        email = session['customer']['email']
+    except:
+        return render_template('index.html',message='please login to view your spending')
+    query1 = "SELECT DATE_FORMAT(sold_datetime, '%Y-%m') AS month , SUM(price) AS total FROM ticket NATURAL JOIN take WHERE email = '"
+    query2 = "' GROUP BY month ORDER BY month DESC;"
+    query = query1 + str(email) + query2
+    cursor.execute(query)
+    spending = cursor.fetchall()
+    return render_template('customer_spending.html',spending=spending)
+
 @app.route('/logoutStaff')
 def logoutStaff():
 	session.pop('staff')
-	return render_template('/logged_out.html', logged_out = 'Logged Out!')
+	return render_template('/logout.html', logged_out = 'Logged Out!')
 @app.route('/logoutCustomer')
 def logoutCustomer():
 	session.pop('customer')
-	return render_template('/logged_out.html', logged_out = 'Logged Out!')
+	return render_template('/logout.html', logged_out = 'Logged Out!')
 @app.route('/action_unauthorized')
 def action_unauthorized():
     return render_template('action_unauthorized.html')

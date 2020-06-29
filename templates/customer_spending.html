@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+    padding: 8px;
+    }
+    tr:nth-child(even) {
+    background-color: #dddddd;
+    }
+    </style>
+    <meta charset="UTF-8">
+    <title>View My Spending</title>
+    <h1>Track My Spending</h1>
+</head>
+<body>
+{% if spending %}
+<table>
+    <th>Month</th>
+    <th>Total</th>
+    <tr>
+    {% for line in spending %}
+        <td>{{ line['month' ]}}</td>
+        <td>{{ line['total']}}</td>
+
+    {% endfor %}
+    </tr>
+
+</table>
+{% else %}
+    <p>Your have not purchased any flight yet</p>
+{% endif %}
+</body>
+<a href="/customerHome">Go Back</a>
+</html>
